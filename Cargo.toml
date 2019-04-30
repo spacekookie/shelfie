@@ -1,0 +1,21 @@
+[package]
+name = "shelfie"
+description = "An application exclusively made to send cute selfies to cute people"
+version = "0.1.0"
+license = "AGPL-3.0"
+authors = ["Katharina Fey <kookie@spacekookie.de>"]
+edition = "2018"
+
+[dependencies]
+
+# Web stack
+actix-web = "1.0.0-beta.1"
+actix-multipart = "0.1.0-beta.1"
+actix-files = "0.1.0-betsa.1"
+env_logger = "0.6"
+futures = "0.1.26"
+tera = "0.11"
+
+# Utility crates
+rand = "0.6"
+hex = "0.3"
