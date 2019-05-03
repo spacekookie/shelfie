@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 
+{% block meta %}
+<meta property="og:type" content="article">
+<meta property="og:title" content="View picture - Shelfie">
+<meta property="og:url " content="https://{{ app_domain }}/id/{{ id }}">
+<meta property="og:image" content="https://{{ app_domain }}/images/{{ id }}">
+{% endblock meta %}
+
 {% block body %}
 <style>
 .picture {

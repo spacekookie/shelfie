@@ -110,6 +110,8 @@ fn index(tmpl: web::Data<tera::Tera>, _: HttpRequest) -> Result<impl Responder> 
 fn display(tmpl: web::Data<tera::Tera>, id: Path<String>) -> Result<impl Responder> {
     let mut ctx = tera::Context::new();
     ctx.insert("id", &*id);
+    ctx.insert("app_domain", &env::var("SHELFIE_DOMAIN")
+        .map_err(|_| error::ErrorInternalServerError("Environment variable SHELFIE_DOMAIN is not set"))?);
 
     Ok(HttpResponse::Ok().content_type("text/html").body(
         tmpl.render("show.html", &ctx)
