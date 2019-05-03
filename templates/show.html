@@ -1,7 +1,14 @@
 {% extends "base.html" %}
 
 {% block body %}
-<div align="center">
-    <img src="/images/{{ id }}" class="responsive" alt="A cute person, probably. uwu!" />
+<style>
+.picture {
+	background-image: url("/images/{{ id }}");
+}
+</style>
+
+<div class="picture-background picture"></div>
+<div class="picture-container">
+	<img src="/images/{{ id }}">
 </div>
 {% endblock body %}
