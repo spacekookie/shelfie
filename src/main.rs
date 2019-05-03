@@ -1,6 +1,5 @@
 //! A small application that lets people upload files
 
-#[macro_use]
 extern crate tera;
 
 use actix_files::Files;
@@ -128,7 +127,13 @@ fn main() -> std::io::Result<()> {
         .unwrap();
 
     HttpServer::new(|| {
-        let tera = compile_templates!(concat!(env!("CARGO_MANIFEST_DIR"), "/templates/**/*"));
+        let mut tera = tera::Tera::default();
+        tera.add_raw_templates(vec![
+          ("base.html", include_str!("../templates/base.html")),
+          ("home.html", include_str!("../templates/home.html")),
+          ("show.html", include_str!("../templates/show.html")),
+        ]).unwrap();
+
         let data = env::var("SHELFIE_STORAGE").unwrap_or(
             env::current_dir()
                 .expect("Failed to get current directory!")
