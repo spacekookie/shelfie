@@ -129,6 +129,7 @@ fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         let mut tera = tera::Tera::default();
         tera.add_raw_templates(vec![
+          ("shelfie.css", include_str!("../templates/shelfie.css")),
           ("base.html", include_str!("../templates/base.html")),
           ("home.html", include_str!("../templates/home.html")),
           ("show.html", include_str!("../templates/show.html")),
