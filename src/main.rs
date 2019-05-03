@@ -86,7 +86,7 @@ pub fn upload(multipart: Multipart) -> impl Future<Item = HttpResponse, Error = 
         .collect()
         .map(|vec| {
             let file = vec.get(0).unwrap();
-            HttpResponse::TemporaryRedirect()
+            HttpResponse::SeeOther()
                 .header("Location", format!("/id/{}", file))
                 .finish()
         })
