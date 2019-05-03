@@ -141,7 +141,7 @@ fn main() -> std::io::Result<()> {
             .data(tera)
             .wrap(middleware::Logger::default())
             .service(
-                web::resource("/")
+                web::resource("/upload")
                     .route(web::get().to(index))
                     .route(web::post().to_async(upload)),
             )
