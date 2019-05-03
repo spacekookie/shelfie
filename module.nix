@@ -103,7 +103,7 @@ in
         enable = true;
         virtualHosts."${cfg.appDomain}" = {
           locations."/".proxyPass = "http://127.0.0.1:${toString(cfg.port)}/";
-          locations."/upload/".extraConfig = optionalString (cfg.uploadBasicAuthFile != null) ''
+          locations."=/".extraConfig = optionalString (cfg.uploadBasicAuthFile != null) ''
             auth_basic secured;
             auth_basic_user_file ${cfg.uploadBasicAuthFile};
           '';
