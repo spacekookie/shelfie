@@ -1,6 +1,5 @@
 //! A small application that lets people upload files
 
-#[macro_use]
 extern crate tera;
 
 use actix_files::Files;
@@ -87,7 +86,7 @@ pub fn upload(multipart: Multipart) -> impl Future<Item = HttpResponse, Error = 
         .collect()
         .map(|vec| {
             let file = vec.get(0).unwrap();
-            HttpResponse::TemporaryRedirect()
+            HttpResponse::SeeOther()
                 .header("Location", format!("/id/{}", file))
                 .finish()
         })
@@ -111,6 +110,8 @@ fn index(tmpl: web::Data<tera::Tera>, _: HttpRequest) -> Result<impl Responder> 
 fn display(tmpl: web::Data<tera::Tera>, id: Path<String>) -> Result<impl Responder> {
     let mut ctx = tera::Context::new();
     ctx.insert("id", &*id);
+    ctx.insert("app_domain", &env::var("SHELFIE_DOMAIN")
+        .map_err(|_| error::ErrorInternalServerError("Environment variable SHELFIE_DOMAIN is not set"))?);
 
     Ok(HttpResponse::Ok().content_type("text/html").body(
         tmpl.render("show.html", &ctx)
@@ -128,7 +129,14 @@ fn main() -> std::io::Result<()> {
         .unwrap();
 
     HttpServer::new(|| {
-        let tera = compile_templates!(concat!(env!("CARGO_MANIFEST_DIR"), "/templates/**/*"));
+        let mut tera = tera::Tera::default();
+        tera.add_raw_templates(vec![
+          ("shelfie.css", include_str!("../templates/shelfie.css")),
+          ("base.html", include_str!("../templates/base.html")),
+          ("home.html", include_str!("../templates/home.html")),
+          ("show.html", include_str!("../templates/show.html")),
+        ]).unwrap();
+
         let data = env::var("SHELFIE_STORAGE").unwrap_or(
             env::current_dir()
                 .expect("Failed to get current directory!")

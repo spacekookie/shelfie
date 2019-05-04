@@ -1,7 +1,49 @@
 {% extends "base.html" %}
 
+{% block meta %}
+<meta property="og:type" content="article">
+<meta property="og:title" content="View picture - Shelfie">
+<meta property="og:url " content="https://{{ app_domain }}/id/{{ id }}">
+<meta property="og:image" content="https://{{ app_domain }}/images/{{ id }}">
+{% endblock meta %}
+
+{% block style %}
+.picture {
+	background-image: url("/images/{{ id }}");
+}
+
+.picture-container {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	height: 100vh;
+	width: 100vw;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 100vw;
+	max-height: 100vh;
+}
+
+.picture-background {
+	height: 100vh;
+	width: 100vw;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: cover;
+	filter: blur(20px);
+}
+
+img {
+	max-height: 100%;
+	max-width: 100%;
+	box-shadow: 0 0 20px black;
+}
+{% endblock style %}
+
 {% block body %}
-<div align="center">
-    <img src="/images/{{ id }}" class="responsive" alt="A cute person, probably. uwu!" />
+<div class="picture-background picture"></div>
+<div class="picture-container">
+	<img src="/images/{{ id }}">
 </div>
 {% endblock body %}

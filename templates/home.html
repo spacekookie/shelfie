@@ -1,8 +1,44 @@
 {% extends "base.html" %}
 
+{% block style %}
+.title {
+    color: #EFEFEF;
+    text-align: center;
+    margin-top: 25px;
+}
+
+.button {
+    color: black;
+    border: none;
+    width: 80%;
+    padding: 15px 25px;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+    font-size: 16px;
+    margin: 8px 0px;
+    cursor: pointer;
+  }
+.button:hover {
+    background-color: #333;
+    color: white;
+}
+
+.anarchy {
+    background-color: white;
+    color: black;
+    border: 2px solid #f44336;
+  }
+
+.anarchy:hover {
+    background-color: #f44336;
+    color: white;
+}
+{% endblock style %}
+
 {% block body %}
 <h1 class="title">Shelfie</h1>
-    <form target="/" method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data">
     <input class="button anarchy" type="file" name="file"/>
     <input class="button" type="submit" value="Submit"></button>
 </form>

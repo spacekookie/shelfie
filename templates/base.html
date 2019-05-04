@@ -1,8 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <link rel="stylesheet" type="text/css" href="/static/css/shelfie.css" />
+{% block meta %}
+{% endblock meta %}
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+
+    <style>
+{% include "shelfie.css" %}
+{% block style %}
+{% endblock style %}
+    </style>
     <title>Shelfie</title>
 </head>
 <body>
