@@ -97,18 +97,19 @@ in
         wantedBy = [ "multi-user.target" ];
         environment.SHELFIE_PORT = toString(cfg.port);
         environment.SHELFIE_STORAGE = cfg.dataDir;
+        environment.SHELFIE_DOMAIN = cfg.appDomain;
       };
 
       services.nginx = lib.mkIf cfg.configureNginx {
         enable = true;
         virtualHosts."${cfg.appDomain}" = {
           locations."/".proxyPass = "http://127.0.0.1:${toString(cfg.port)}/";
-          locations."=/" = {
-            extraConfig = optionalString (cfg.uploadBasicAuthFile != null) ''
-              auth_basic secured;
-              auth_basic_user_file ${cfg.uploadBasicAuthFile};
-            '';
+          locations." = /" = {
             proxyPass = "http://127.0.0.1:${toString(cfg.port)}/";
+            extraConfig = optionalString (cfg.uploadBasicAuthFile != null) ''
+                auth_basic secured;
+                auth_basic_user_file ${cfg.uploadBasicAuthFile};
+            '';
           };
         };
       };
