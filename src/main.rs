@@ -107,11 +107,12 @@ fn index(tmpl: web::Data<tera::Tera>, _: HttpRequest) -> Result<impl Responder> 
 }
 
 /// Display an image ID
-fn display(tmpl: web::Data<tera::Tera>, id: Path<String>) -> Result<impl Responder> {
+fn display(tmpl: web::Data<tera::Tera>, request: HttpRequest, id: Path<String>) -> Result<impl Responder> {
     let mut ctx = tera::Context::new();
     ctx.insert("id", &*id);
-    ctx.insert("app_domain", &env::var("SHELFIE_DOMAIN")
-        .map_err(|_| error::ErrorInternalServerError("Environment variable SHELFIE_DOMAIN is not set"))?);
+    ctx.insert("host", request.headers().get("host")
+        .ok_or(error::ErrorBadRequest("Missing Host header"))?
+        .to_str().map_err(|_| error::ErrorBadRequest("Invalid Host header"))?);
 
     Ok(HttpResponse::Ok().content_type("text/html").body(
         tmpl.render("show.html", &ctx)

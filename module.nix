@@ -97,7 +97,6 @@ in
         wantedBy = [ "multi-user.target" ];
         environment.SHELFIE_PORT = toString(cfg.port);
         environment.SHELFIE_STORAGE = cfg.dataDir;
-        environment.SHELFIE_DOMAIN = cfg.appDomain;
       };
 
       services.nginx = lib.mkIf cfg.configureNginx {
