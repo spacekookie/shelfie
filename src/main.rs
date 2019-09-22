@@ -2,6 +2,7 @@
 
 extern crate tera;
 
+use futures::future;
 use actix_files::Files;
 use actix_multipart::{Field, Multipart, MultipartError};
 use actix_web::{
@@ -81,18 +82,19 @@ pub fn save_file(field: Field) -> impl Future<Item = String, Error = Error> {
 pub fn upload(multipart: Multipart) -> impl Future<Item = HttpResponse, Error = Error> {
     multipart
         .map_err(error::ErrorInternalServerError)
+        .take(1)
+        .fuse()
         .map(|field| save_file(field).into_stream())
         .flatten()
         .collect()
-        .map(|vec| {
-            let file = vec.get(0).unwrap();
-            HttpResponse::SeeOther()
-                .header("Location", format!("/id/{}", file))
-                .finish()
-        })
-        .map_err(|e| {
-            println!("failed: {}", e);
-            e
+        .and_then(|vec| {
+            let result = vec.get(0).ok_or(error::ErrorNotFound(std::io::Error::new(std::io::ErrorKind::NotFound, "Data not found")))
+                .map(|id| {
+                    HttpResponse::SeeOther()
+                        .header("Location", format!("/id/{}", id))
+                        .finish()
+                });
+            future::result(result)
         })
 }
 
@@ -160,4 +162,44 @@ fn main() -> std::io::Result<()> {
     })
     .bind(format!("127.0.0.1:{}", port))?
     .run()
+}
+
+#[cfg(test)]
+mod tests {
+    use actix_multipart::{Multipart};
+    use super::{save_file, upload};
+    use bytes::Bytes;
+    use futures::future;
+    use futures::future::Future;
+    use futures::stream::Stream;
+    use actix_utils::stream::IntoStream;
+    use actix_web::http::{Method};
+    use actix_web::client::{Client, ClientBuilder, ClientRequest};
+    #[test]
+    fn it_gracefully_handles_malformed_boundaries() {
+        // Prepare our payloads
+        let mut data:Vec<Vec<u8>> = vec![];
+        for i in 0..99 {
+            let payload = format!("--------------------------d74496d66958873e\r
+Content-Disposition: form-data; name=\"file{}\"; filename=\"foobar.txt\"\r
+\r
+this is a test\r\n", i);
+            data.push(payload.clone().into_bytes());
+        }
+        // Add the last boundary
+        data.push("------------------------d74496d66958873e--\r\n".to_string().into_bytes());
+        let total_data = data.iter().fold(0, |ctr, element| ctr + element.len());
+        let client = ClientBuilder::new().finish();
+        let request = client
+            .request(Method::POST, "http://localhost")
+                .content_type("multipart/form-data; boundary=----------------------d74496d66958873e;")
+                .content_length(total_data as u64);
+        let map = request.headers();
+        let iter = data.into_iter().map(|r| Bytes::from(r));
+        let multipart = Multipart::new(&map, futures::stream::iter_ok(iter));
+        let output = upload(multipart)
+            .wait();
+
+        assert!(output.is_err());
+    }
 }
